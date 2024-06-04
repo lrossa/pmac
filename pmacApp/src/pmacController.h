@@ -515,6 +515,7 @@ private:
     std::string cpu_;
     int cpuNumCores_;
     int cpuCoreTasks_[PPMAC_CPU_TASKS_NUM];
+    int userBuffSize_;
     int parameterIndex_;
     pmacMessageBroker *pBroker_;
     pmacTrajectory *pTrajectory_;

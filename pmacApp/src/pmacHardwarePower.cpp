@@ -340,14 +340,20 @@ std::string pmacHardwarePower::parseCSMappingResult(const std::string mappingRes
   return result;
 }
 
+void pmacHardwarePower::getTimeAddr(int *timeAddr, int addr, int buffSize) {
+  static const char *functionName = "getTimeAddr";
+
+  debugf(DEBUG_FLOW, functionName, "base addr %d", addr);
+  *timeAddr = addr + (int)sizeof(int)*buffSize;
+}
+
 void pmacHardwarePower::startTrajectoryTimePointsCmd(char *userCmd, char *timeCmd,
-                                                     int addr) {
+                                                     int addr, int buffSize) {
   static const char *functionName = "startTrajectoryTimePointsCmd";
 
   debug(DEBUG_FLOW, functionName, "addr %d", addr);
-
-  sprintf(userCmd, "Next_User(%d)=", addr);
-  sprintf(timeCmd, "Next_Time(%d)=", addr);
+  sprintf(timeCmd, "Next_Time[%d]=", addr/(int)sizeof(int));
+  sprintf(userCmd, "Next_User[%d]=", addr/(int)sizeof(int)+buffSize);
 
 }
 
@@ -376,16 +382,22 @@ void pmacHardwarePower::addTrajectoryTimePointCmd(char *userCmd, char *timeCmd,
 
 }
 
-void pmacHardwarePower::startAxisPointsCmd(char *axisCmd, int axis, int addr, int , bool posCmd ) {
+void pmacHardwarePower::getAxisAddr(int *axisAddr, int addr, int buffSize) {
+  static const char *functionName = "getAxisAddr";
+
+  debugf(DEBUG_FLOW, functionName, "base addr %d", addr);
+  *axisAddr = addr + (int)sizeof(double)*buffSize;
+}
+
+void pmacHardwarePower::startAxisPointsCmd(char *axisCmd, int axis, int addr, int buffSize, bool posCmd ) {
   const char axes[] = "ABCUVWXYZ";
   static const char *functionName = "startAxisPointsCmd";
 
   debugf(DEBUG_FLOW, functionName, "cmd %s, axis %d, addr %d", axisCmd, axis, addr);
-
   if(posCmd) {
-    sprintf(axisCmd, "Next_%c(%d)=", axes[axis], addr);
+    sprintf(axisCmd, "Next_%c[%d]=", axes[axis], (addr+2*buffSize*(int)sizeof(int))/(int)sizeof(double) + (axis*buffSize));
   } else {
-    sprintf(axisCmd, "Next_%c_Vel(%d)=", axes[axis], addr);
+    sprintf(axisCmd, "Next_%c_Vel[%d]=", axes[axis], (addr+2*buffSize*(int)sizeof(int))/(int)sizeof(double) + ((axis+PMAC_MAX_CS_AXES)*buffSize));
   }
 }
 
