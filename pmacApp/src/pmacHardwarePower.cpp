@@ -359,14 +359,21 @@ void pmacHardwarePower::addTrajectoryTimePointCmd(char *userCmd, char *timeCmd,
   debugf(DEBUG_FLOW, functionName, "userCmd %s\ntimeCmd %s\nvel %d, user %d, time %d",
          userCmd, timeCmd, userFunc, time);
 
+  char bufferUser[32];
+  char bufferTime[32];
+
   if(firstVal) {
-    sprintf(userCmd, "%s%d", userCmd, userFunc);
-    sprintf(timeCmd, "%s%d", timeCmd, time);
+    snprintf(bufferUser, sizeof(bufferUser), "%d", userFunc);
+    snprintf(bufferTime, sizeof(bufferTime), "%d", time);
   }
   else {
-    sprintf(userCmd, "%s,%d", userCmd, userFunc);
-    sprintf(timeCmd, "%s,%d", timeCmd, time);
+    snprintf(bufferUser, sizeof(bufferUser), ",%d", userFunc);
+    snprintf(bufferTime, sizeof(bufferTime), ",%d", time);
   }
+
+  strncat(userCmd, bufferUser, 1024 - strlen(userCmd) - 1);
+  strncat(timeCmd, bufferTime, 1024 - strlen(timeCmd) - 1);
+
 }
 
 void pmacHardwarePower::startAxisPointsCmd(char *axisCmd, int axis, int addr, int , bool posCmd ) {
@@ -389,12 +396,16 @@ void pmacHardwarePower::addAxisPointCmd(char *axisCmd, int , double pos, int ,
   debugf(DEBUG_FLOW, functionName, "cmd %s, pos %f, firstval %d", axisCmd,
           pos, firstVal);
 
+  char bufferPos[64];
+
   if(firstVal) {
-    sprintf(axisCmd, "%s%g", axisCmd, pos);
+    snprintf(bufferPos, sizeof(bufferPos), "%.12g", pos);
   }
   else {
-    sprintf(axisCmd, "%s,%g", axisCmd, pos);
+    snprintf(bufferPos, sizeof(bufferPos), ",%.12g", pos);
   }
+
+  strncat(axisCmd, bufferPos, 1024 - strlen(axisCmd) - 1);
 }
 
 std::string pmacHardwarePower::getCSEnableCommand(int csNo) {
