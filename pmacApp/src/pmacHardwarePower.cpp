@@ -392,11 +392,11 @@ void pmacHardwarePower::startAxisPointsCmd(char *axisCmd, int axis, int addr, in
 void pmacHardwarePower::addAxisPointCmd(char *axisCmd, int , double pos, int ,
                                         bool firstVal) {
   static const char *functionName = "addAxisPointCmd";
+  char bufferPos[64];
 
   debugf(DEBUG_FLOW, functionName, "cmd %s, pos %f, firstval %d", axisCmd,
           pos, firstVal);
 
-  char bufferPos[64];
 
   if(firstVal) {
     snprintf(bufferPos, sizeof(bufferPos), "%.12g", pos);
