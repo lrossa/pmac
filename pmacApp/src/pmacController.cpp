@@ -2053,6 +2053,7 @@ asynStatus pmacController::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   pmacAxis *pAxis = NULL;
   char command[PMAC_MAXBUF_] = {0};
   char response[PMAC_MAXBUF_] = {0};
+  char auxbuffer[PMAC_MAXBUF_] = {0};
   double encRatio = 1.0;
   epicsInt32 encposition = 0;
   const char *name[128];
@@ -2220,7 +2221,8 @@ asynStatus pmacController::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
   } else if (function == PMAC_C_FeedRate_) {
     strcpy(command, "");
     for (int csNo = 1; csNo <= csCount; csNo++) {
-      sprintf(command, "%s &%d%%%lf", command, csNo, value);
+      snprintf(auxbuffer, sizeof(auxbuffer), " &%d%%%lf", csNo, value);
+      strncat(command, auxbuffer, PMAC_MAXBUF_ - strlen(command) -1);
     }
     debug(DEBUG_VARIABLE, functionName, "Feedrate Command", command);
     if (command[0] != 0) {
@@ -4359,6 +4361,7 @@ asynStatus pmacController::processDeferredMoves(void) {
   asynStatus status = asynSuccess;
   char command[PMAC_MAXBUF_] = {0};
   char response[PMAC_MAXBUF_] = {0};
+  char auxbuffer[PMAC_MAXBUF_] = {0};
   pmacAxis *pAxis = NULL;
   static const char *functionName = "processDeferredMoves";
 
@@ -4370,9 +4373,10 @@ asynStatus pmacController::processDeferredMoves(void) {
     pAxis = getAxis(axis);
     if (pAxis != NULL) {
       if (pAxis->deferredMove_) {
-        sprintf(command, "%s #%d%s%.2f", command, pAxis->axisNo_,
+        snprintf(auxbuffer, sizeof(auxbuffer), " #%d%s%.2f", pAxis->axisNo_,
                 pAxis->deferredRelative_ ? "J^" : "J=",
                 pAxis->deferredPosition_);
+        strncat(command, auxbuffer, PMAC_MAXBUF_ - strlen(command) -1);
       }
     }
   }
@@ -4408,6 +4412,7 @@ asynStatus pmacController::executeManualGroup() {
   std::string csPortName;
   char csAssignment[MAX_STRING_SIZE];
   char cmd[PMAC_MAXBUF];
+  char auxbuffer[PMAC_MAXBUF];
   static const char *functionName = "executeManualGroup";
 
   debug(DEBUG_FLOW, functionName);
@@ -4435,7 +4440,8 @@ asynStatus pmacController::executeManualGroup() {
             if (csNo != 0) {
               // Read the assignment string for this axis
               getStringParam(axis, PMAC_C_GroupAssign_, MAX_STRING_SIZE, csAssignment);
-              sprintf(cmd, "%s &%d#%d->%s ", cmd, csNo, axis, csAssignment);
+              snprintf(auxbuffer, sizeof(auxbuffer), " &%d#%d->%s ", csNo, axis, csAssignment);
+              strncat(cmd, auxbuffer, PMAC_MAXBUF - strlen(cmd) - 1);
             }
           }
         }
