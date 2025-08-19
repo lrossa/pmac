@@ -16,6 +16,15 @@ site location of dependencies.
 Release Notes
 =============
 
+R2-7-0 (Aug 19, 2025)
+==========================
+### Changes
+* Add RTEMS support                             - PR [#129](https://github.com/DiamondLightSource/pmac/pull/129)
+* Add dependency on src to tests                - PR [#131](https://github.com/DiamondLightSource/pmac/pull/131)
+* Update deprecated function in Boost           - PR [#133](https://github.com/DiamondLightSource/pmac/pull/133)
+* Add library dependencies for pmacAsynIPPort   - PR [#134](https://github.com/DiamondLightSource/pmac/pull/134)
+
+
 
 R2-6-5 (Nov 13, 2024)
 ==========================
