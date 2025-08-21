@@ -377,11 +377,13 @@ void pmacHardwareTurbo::addTrajectoryTimePointCmd(char *userCmd, char *timeCmd,
                                                   int userFunc, int time,
                                                   bool ) {
   static const char *functionName = "addTrajectoryTimePointCmd";
+  char bufferUser[16];
 
   debugf(DEBUG_FLOW, functionName, "userCmd %s\ntimeCmd %s\nuser %d, time %d",
          userCmd, timeCmd, userFunc, time);
 
-  sprintf(userCmd, "%s,$%01X%06X", userCmd, userFunc, time);
+  snprintf(bufferUser, sizeof(bufferUser), ",$%01X%06X", userFunc, time);
+  strncat(userCmd, bufferUser, 1024 - strlen(userCmd) -1);
   timeCmd[0] = 0;
 }
 
@@ -401,10 +403,13 @@ void pmacHardwareTurbo::addAxisPointCmd(char *axisCmd, int , double pos, int ,
         bool ) {
   int64_t ival = 0;
   static const char *functionName = "addAxisPointCmd";
+  char bufferPos[64];
 
   debugf(DEBUG_FLOW, functionName, "cmd %s, pos %f", axisCmd, pos);
   doubleToPMACFloat(pos, &ival);
-  sprintf(axisCmd, "%s,$%lX", axisCmd, (long) ival);
+
+  snprintf(bufferPos, sizeof(bufferPos), ",$%lX", (long) ival);
+  strncat(axisCmd, bufferPos, 1024 - strlen(axisCmd) - 1);
 }
 
 std::string pmacHardwareTurbo::getCSEnableCommand(int csNo) {
