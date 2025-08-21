@@ -16,6 +16,11 @@ site location of dependencies.
 Release Notes
 =============
 
+R2-7-1 (Aug 21, 2025)
+==========================
+### Changes
+* Fix Trajectories string for PowerPMAC         - PR [#145](https://github.com/DiamondLightSource/pmac/pull/145)
+
 R2-7-0 (Aug 19, 2025)
 ==========================
 ### Changes
