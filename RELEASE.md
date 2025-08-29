@@ -16,6 +16,9 @@ site location of dependencies.
 Release Notes
 =============
 
+R2-7-2 (Aug 29, 2025)
+* Prevent vxWorks build                         - PR [#147](https://github.com/DiamondLightSource/pmac/pull/147)
+
 R2-7-1 (Aug 21, 2025)
 ==========================
 ### Changes
