@@ -16,6 +16,13 @@
 #   continue building anyway if conflicts are found.
 CHECK_RELEASE = WARN
 
+# BUILD_ARCHS defines which target architectures this application should be built for.
+# This is useful when EPICS Base supports multiple architectures, but you only want to
+# build for a specific one (e.g., linux-x86_64 or RTEMS-beatnik). It helps avoid unnecessary
+# builds and potential duplication errors. In EPICS 7, this can be used alongside
+# CROSS_COMPILER_TARGET_ARCHS to control cross-compilation targets.
+BUILD_ARCHS = linux-x86_64
+
 # Set this when you only want to compile this application
 #   for a subset of the cross-compiled target architectures
 #   that Base is built for.
