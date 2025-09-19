@@ -16,6 +16,9 @@ site location of dependencies.
 Release Notes
 =============
 
+R2-7-4 (Sep 19, 2025)
+* Add EQU to ppmac trajectory scan code (#146)  - PR [#146](https://github.com/DiamondLightSource/pmac/pull/146)
+
 R2-7-2 (Aug 29, 2025)
 * Prevent vxWorks build                         - PR [#147](https://github.com/DiamondLightSource/pmac/pull/147)
 
