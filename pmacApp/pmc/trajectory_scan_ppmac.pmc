@@ -49,16 +49,16 @@ global Next_User(DoubleBuffLen)
 
 // User address 0 is the only memory location we allocate explicitly
 // this seems to be required in order to map to bits in the word
-AxesParser->u.user:0
-A_Axis->u.user:0.0.1
-B_Axis->u.user:0.1.1
-C_Axis->u.user:0.2.1
-U_Axis->u.user:0.3.1
-V_Axis->u.user:0.4.1
-W_Axis->u.user:0.5.1
-X_Axis->u.user:0.6.1
-Y_Axis->u.user:0.7.1
-Z_Axis->u.user:0.8.1
+AxesParser->u.user:8
+A_Axis->u.user:8.0.1
+B_Axis->u.user:8.1.1
+C_Axis->u.user:8.2.1
+U_Axis->u.user:8.3.1
+V_Axis->u.user:8.4.1
+W_Axis->u.user:8.5.1
+X_Axis->u.user:8.6.1
+Y_Axis->u.user:8.7.1
+Z_Axis->u.user:8.8.1
 
 
 // *****************************************************************************************
@@ -147,8 +147,7 @@ Version->*d
 #define Readback_Z          Q89
 
 global PVT_Time
-global UserFunc
-
+global UserCmd
 
 global CalculatedBase       // Calculated temporary variable for Current base address
 
@@ -404,8 +403,8 @@ N110:
     // If UserFunc is defined and greater than zero, call the corresponding function.
     // This function is expected to be implemented in either:
     // trajectory_scan_userfunc_equ_ppmac.pmc or trajectory_scan_userfunc_gpio_ppmac.pmc
-    if (UserFunc > 0) {
-        call UserFunc(UserFunc);
+    if (UserCmd > 0) {
+        call UserFunc(UserCmd);
     }
 
 Return
