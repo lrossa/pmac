@@ -43,12 +43,16 @@ public:
 
     std::string parseCSMappingResult(const std::string mappingResult);
 
+    void getTimeAddr(int *timeAddr, int addr, int buffSize);
+
     void startTrajectoryTimePointsCmd(char *user_cmd, char *time_cmd,
-                                      int addr);
+                                      int addr, int buffSize);
 
     void addTrajectoryTimePointCmd(char *userCmd, char *timeCmd,
                                    int userFunc, int time,
                                    bool firstVal);
+
+    void getAxisAddr(int *axisAddr, int addr, int buffSize);
 
     void startAxisPointsCmd(char *axis_cmd, int axis, int addr, int buffSize, bool posCmd);
 

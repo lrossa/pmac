@@ -363,8 +363,15 @@ std::string pmacHardwareTurbo::parseCSMappingResult(const std::string mappingRes
   return mappingResult;
 }
 
+void pmacHardwareTurbo::getTimeAddr(int *timeOffset, int addr, int buffSize) {
+  static const char *functionName = "getTimeAddr";
+
+  debugf(DEBUG_FLOW, functionName, "base addr %d", addr);
+  *timeOffset = addr + buffSize;
+}
+
 void pmacHardwareTurbo::startTrajectoryTimePointsCmd(char *user_cmd, char *time_cmd,
-                                                     int addr) {
+                                                     int addr, int) {
   static const char *functionName = "startTrajectoryTimePointsCmd";
 
   debug(DEBUG_FLOW, functionName, "addr %d", addr);
@@ -385,6 +392,13 @@ void pmacHardwareTurbo::addTrajectoryTimePointCmd(char *userCmd, char *timeCmd,
   snprintf(bufferUser, sizeof(bufferUser), ",$%01X%06X", userFunc, time);
   strncat(userCmd, bufferUser, 1024 - strlen(userCmd) -1);
   timeCmd[0] = 0;
+}
+
+void pmacHardwareTurbo::getAxisAddr(int *axisAddr, int addr, int buffSize) {
+  static const char *functionName = "getAxisAddr";
+
+  debugf(DEBUG_FLOW, functionName, "base addr %d", addr);
+  *axisAddr = addr + buffSize;
 }
 
 void pmacHardwareTurbo::startAxisPointsCmd(char *axisCmd, int axis, int addr, int buffSize, bool posCmd) {
