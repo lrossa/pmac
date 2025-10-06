@@ -1515,7 +1515,7 @@ asynStatus pmacController::mediumUpdate(pmacCommandStore *sPtr) {
       } else {
         setIntegerParam(axis, PMAC_C_GroupCSPortRBV_, 0);
       }
-      std::string cs_cmd = pHardware_->getCSMappingCmd(axisCs, axis).c_str();
+      std::string cs_cmd = pHardware_->getCSMappingCmd(axisCs, axis);
       if (sPtr->checkForItem(cs_cmd)) {
         const std::string result = pHardware_->parseCSMappingResult(
                 sPtr->readValue(cs_cmd));
