@@ -331,11 +331,11 @@ std::string pmacHardwarePower::parseCSMappingResult(const std::string mappingRes
   static const char *functionName = "parseCSMappingResult";
   debugf(DEBUG_FLOW, functionName, "command %s", mappingResult.c_str());
 
-  if (mappingResult.length() > 0) {
-    const char *mapping = mappingResult.substr(mappingResult.length() - 1, 1).c_str();
-    char upper_mapping = (char) toupper(mapping[0]);
-    result = std::string(1, upper_mapping);
+  if (mappingResult.empty()) {
+    return std::string();
   }
+  char upper_mapping = (char) toupper(mappingResult.back());
+  result = std::string(1,upper_mapping);
 
   return result;
 }
