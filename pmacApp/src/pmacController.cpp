@@ -415,6 +415,7 @@ void pmacController::createAsynParams(void) {
   createParam(PMAC_C_AxisBits01String, asynParamInt32, &PMAC_C_AxisBits01_);
   createParam(PMAC_C_AxisBits02String, asynParamInt32, &PMAC_C_AxisBits02_);
   createParam(PMAC_C_AxisBits03String, asynParamInt32, &PMAC_C_AxisBits03_);
+  createParam(PMAC_C_AxisMasterCtrlString, asynParamInt32, &PMAC_C_AxisMasterCtrl_);
   createParam(PMAC_C_ProfileUseAxisAString, asynParamInt32, &PMAC_C_ProfileUseAxisA_);
   createParam(PMAC_C_ProfileUseAxisBString, asynParamInt32, &PMAC_C_ProfileUseAxisB_);
   createParam(PMAC_C_ProfileUseAxisCString, asynParamInt32, &PMAC_C_ProfileUseAxisC_);
@@ -2586,6 +2587,9 @@ asynStatus pmacController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status = (this->executeManualGroup() == asynSuccess) && status;
   } else if (function == PMAC_C_GroupCSPort_) {
     status = (this->executeManualGroup() == asynSuccess) && status;
+  } else if (function == PMAC_C_AxisMasterCtrl_) {
+    sprintf(command, "Motor[%d].MasterCtrl=%d", pAxis->axisNo_, value);
+    status = (this->immediateWriteRead(command, response) == asynSuccess) && status;
   }
 
 
