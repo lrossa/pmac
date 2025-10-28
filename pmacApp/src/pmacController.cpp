@@ -2132,13 +2132,19 @@ asynStatus pmacController::writeFloat64(asynUser *pasynUser, epicsFloat64 value)
     double baseVelocity = 0.0;
     double velocity = 0.0;
     double acceleration = 0.0;
-    getDoubleParam(pAxis->axisNo_, motorVelBase_, &baseVelocity);
-    getDoubleParam(pAxis->axisNo_, motorVelocity_, &velocity);
-    getDoubleParam(pAxis->axisNo_, motorAccel_, &acceleration);
-    pAxis->directMove(value, baseVelocity, velocity, acceleration);
-    pAxis->setIntegerParam(motorStatusDone_, 0);
-    pAxis->callParamCallbacks();
-    wakeupPoller();
+    int master_control = 0;
+    getIntegerParam(pAxis->axisNo_, PMAC_C_AxisMasterCtrl_, &master_control);
+    if (master_control == 0){
+      getDoubleParam(pAxis->axisNo_, motorVelBase_, &baseVelocity);
+      getDoubleParam(pAxis->axisNo_, motorVelocity_, &velocity);
+      getDoubleParam(pAxis->axisNo_, motorAccel_, &acceleration);
+      pAxis->directMove(value, baseVelocity, velocity, acceleration);
+      pAxis->setIntegerParam(motorStatusDone_, 0);
+      pAxis->callParamCallbacks();
+      wakeupPoller();
+    } else {
+      debug(DEBUG_VARIABLE, functionName, "Cannot direct move motor in following mode.");
+    }
   } else if (function == motorLowLimit_) {
     // Limits in counts
     int lowLimitCounts = int(std::floor(value/pAxis->scale_ + 0.5));
