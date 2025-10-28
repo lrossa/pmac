@@ -61,6 +61,17 @@ record(ao, "$(P)$(M):OFF_SET") {
   field(OUT, "@asyn($(PORT),$(ADDR),0)PMAC_OFFSET")
 }
 
+###############################################################
+# Following Mode
+###############################################################
+
+record(bo, "$(P)$(M):MASTER_CTRL") {
+  field(DTYP, "asynInt32")
+  field(OUT, "@asyn($(PORT),$(ADDR),0)PMAC_C_AXIS_MASTER_CTRL")
+  field(ZNAM, "0")
+  field(ONAM, "1")
+}
+
 include "motor_in_cs.template"
 include "eloss_kill_autohome_records.template"
 include "pmacDirectMotor.template"
