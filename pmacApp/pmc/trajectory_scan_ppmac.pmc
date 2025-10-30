@@ -1,42 +1,53 @@
 // *****************************************************************************************
 // Variables
 // *****************************************************************************************
-#define BuffLen       1000    // Length of buffers
-#define DoubleBuffLen 2000    // <= 2864 to prevent P-variables/global variables overflow
-
+#define BuffAddr      4000          // >8 to keep first byte unused - $8 used by AxesParser
+#define BuffLen       2000          // Length of buffers
+#define DoubleBuffLen 2*BuffLen     // BuffAddr + DoubleBuffLen * (2*sizeof(int)+18*sizeof(double)) <= User Buffer size
 
 // *****************************************************************************************
 // Set these values for your PMAC
 // *****************************************************************************************
-#define ProgramNum   1     // Which motion program to use for scanning
-#define VersionNum   4     // Version of this trajectory scan program
+#define PROG_TrajectoryScan   1     // Which motion program to use for scanning
+#define VersionNum            5     // Version of this trajectory scan program
+
 
 // *****************************************************************************************
-// Address-Based Variables - on ppmac these are arrays and we index into all of them
-//  using CalculatedBase
+// Set variable types sizes
 // *****************************************************************************************
-global Next_Time(DoubleBuffLen)                     // Indexes to Next_* coordinate addresses
-global Next_A(DoubleBuffLen)                        // These are incremented at each step
-global Next_B(DoubleBuffLen)
-global Next_C(DoubleBuffLen)
-global Next_U(DoubleBuffLen)
-global Next_V(DoubleBuffLen)
-global Next_W(DoubleBuffLen)
-global Next_X(DoubleBuffLen)
-global Next_Y(DoubleBuffLen)
-global Next_Z(DoubleBuffLen)
-global Next_A_Vel(DoubleBuffLen)
-global Next_B_Vel(DoubleBuffLen)
-global Next_C_Vel(DoubleBuffLen)
-global Next_U_Vel(DoubleBuffLen)
-global Next_V_Vel(DoubleBuffLen)
-global Next_W_Vel(DoubleBuffLen)
-global Next_X_Vel(DoubleBuffLen)
-global Next_Y_Vel(DoubleBuffLen)
-global Next_Z_Vel(DoubleBuffLen)
-global Next_User(DoubleBuffLen)
+#define _SIZEOF_DOUBLE_         8
+#define _SIZEOF_INTEGER_		4
+#define _SIZEOF_UNSIGNED_		4
 
-#define AxesParser          M4024                      // Specifiers for what axes are activated
+// *****************************************************************************************
+// These need to be defined to Sys.Idata/Ddata,to make the pointer increment work
+// *****************************************************************************************
+
+#define Next_User           Sys.Idata
+#define Next_Time           Sys.Idata
+
+#define Next_A              Sys.Ddata
+#define Next_B              Sys.Ddata
+#define Next_C              Sys.Ddata
+#define Next_U              Sys.Ddata
+#define Next_V              Sys.Ddata
+#define Next_W              Sys.Ddata
+#define Next_X              Sys.Ddata
+#define Next_Y              Sys.Ddata
+#define Next_Z              Sys.Ddata
+
+#define Next_A_Vel          Sys.Ddata
+#define Next_B_Vel          Sys.Ddata
+#define Next_C_Vel          Sys.Ddata
+#define Next_U_Vel          Sys.Ddata
+#define Next_V_Vel          Sys.Ddata
+#define Next_W_Vel          Sys.Ddata
+#define Next_X_Vel          Sys.Ddata
+#define Next_Y_Vel          Sys.Ddata
+#define Next_Z_Vel          Sys.Ddata
+
+// Specifiers for what axes are activated
+#define AxesParser          M4024
 #define A_Axis				M4025
 #define B_Axis				M4026
 #define C_Axis				M4027
@@ -47,18 +58,41 @@ global Next_User(DoubleBuffLen)
 #define Y_Axis				M4032
 #define Z_Axis				M4033
 
-// User address 0 is the only memory location we allocate explicitly
-// this seems to be required in order to map to bits in the word
-AxesParser->u.user:0
-A_Axis->u.user:0.0.1
-B_Axis->u.user:0.1.1
-C_Axis->u.user:0.2.1
-U_Axis->u.user:0.3.1
-V_Axis->u.user:0.4.1
-W_Axis->u.user:0.5.1
-X_Axis->u.user:0.6.1
-Y_Axis->u.user:0.7.1
-Z_Axis->u.user:0.8.1
+#define Time_Idx            L4000                   // Local variables to store Next_* coordinate indices
+#define A_Idx               L4001
+#define B_Idx               L4002
+#define C_Idx               L4003
+#define U_Idx               L4004
+#define V_Idx               L4005
+#define W_Idx               L4006
+#define X_Idx               L4007
+#define Y_Idx               L4008
+#define Z_Idx               L4009
+#define User_Idx            L4010
+
+#define A_Vel_Idx           L4085
+#define B_Vel_Idx           L4086
+#define C_Vel_Idx           L4087
+#define U_Vel_Idx           L4088
+#define V_Vel_Idx           L4089
+#define W_Vel_Idx           L4090
+#define X_Vel_Idx           L4091
+#define Y_Vel_Idx           L4092
+#define Z_Vel_Idx           L4093
+
+
+// User address 8 is the only memory location we allocate explicitly
+// Required to map bits in the word
+AxesParser->Sys.Udata[2]
+A_Axis->u.user:$8.0.1
+B_Axis->u.user:$8.1.1
+C_Axis->u.user:$8.2.1
+U_Axis->u.user:$8.3.1
+V_Axis->u.user:$8.4.1
+W_Axis->u.user:$8.5.1
+X_Axis->u.user:$8.6.1
+Y_Axis->u.user:$8.7.1
+Z_Axis->u.user:$8.8.1
 
 
 // *****************************************************************************************
@@ -147,8 +181,7 @@ Version->*d
 #define Readback_Z          Q89
 
 global PVT_Time
-global UserFunc
-
+global UserCmd
 
 global CalculatedBase       // Calculated temporary variable for Current base address
 
@@ -157,15 +190,16 @@ global CalculatedBase       // Calculated temporary variable for Current base ad
 // *****************************************************************************************
 Version = VersionNum
 
+
 // *****************************************************************************************
 // Set-Up
 // *****************************************************************************************
 
 // Set Initial Values
-BufferLength = BuffLen                          // BuffLen defined in header file
-BufferAdr_A = 0                                 // BufferAdr defined in header file
-BufferAdr_B = BufferLength                  // each individual array holds 2 buffers
-Traj_Status = Traj_StatusInitialised            // Traj_Status = 0
+BufferLength = BuffLen                                                          // BuffLen defined in header file
+BufferAdr_A = BuffAddr                                                         // BufferAdr defined in header file
+BufferAdr_B = BufferAdr_A + BuffLen * (2*SIZEOF_INTEGER + 18*SIZEOF_DOUBLE)       // each individual array holds 2 buffers
+Traj_Status = Traj_StatusInitialised  // Traj_Status = 0
 AbortTrigger = 0
 Error = 0
 
@@ -173,7 +207,7 @@ Error = 0
 // Program
 // *****************************************************************************************
 
-Open PROG ProgramNum
+Open PROG PROG_TrajectoryScan
 
 Abs
 FRAX(A,B,C,U,V,W,X,Y,Z)
@@ -201,13 +235,14 @@ While(AbortTrigger == 0 && Error == 0 && CurrentBufferFill > 0 && PrevBufferFill
     While(AbortTrigger == 0 && Error == 0 && CurrentIndex < CurrentBufferFill)
     {
         GoSub102                            // Shift values through Next_* -> Current_* -> Prev_*
+        GoSub103                            // Updates indices
         GoSub104                            // Check time
         GoSub110                            // Move axes
         CurrentIndex = CurrentIndex + 1
-
     }
 
     GoSub102                                // Shift previous/current coordinates to N-1th/Nth points in buffer
+    GoSub103
 
     // Toggle buffer - Change address & specifier, set new buffer fill, reset previous buffer fill
     PrevBufferFill = CurrentBufferFill      // Update previous buffer fill - will exit while loop if it wasn't full
@@ -289,60 +324,54 @@ Return
 // *************************************************************************************************
 
 N102:
-    PVT_Time = Next_Time(CalculatedBase)
-    UserFunc = Next_User(CalculatedBase)
+    PVT_Time = Next_Time[Time_Idx]
+    UserFunc = Next_User[User_Idx]
 
     If(A_Axis == 1)
     {
-        Current_A = Next_A(CalculatedBase)
-        A_Vel = Next_A_Vel(CalculatedBase)
+        Current_A = Next_A[A_Idx]
+        A_Vel = Next_A_Vel[A_Vel_Idx]
     }
     If (B_Axis == 1)
     {
-        Current_B = Next_B(CalculatedBase)
-        B_Vel = Next_B_Vel(CalculatedBase)
+        Current_B = Next_B[B_Idx]
+        B_Vel = Next_B_Vel[B_Vel_Idx]
     }
     If (C_Axis == 1)
     {
-        Current_C = Next_C(CalculatedBase)
-        C_Vel = Next_C_Vel(CalculatedBase)
+        Current_C = Next_C[C_Idx]
+        C_Vel = Next_C_Vel[C_Vel_Idx]
     }
     If (U_Axis == 1)
     {
-        Current_U = Next_U(CalculatedBase)
-        U_Vel = Next_U_Vel(CalculatedBase)
+        Current_U = Next_U[U_Idx]
+        U_Vel = Next_U_Vel[U_Vel_Idx]
     }
     If (V_Axis == 1)
     {
-        Current_V = Next_V(CalculatedBase)
-        V_Vel = Next_V_Vel(CalculatedBase)
+        Current_V = Next_V[V_Idx]
+        V_Vel = Next_V_Vel[V_Vel_Idx]
     }
     If (W_Axis == 1)
     {
-        Current_W = Next_W(CalculatedBase)
-        W_Vel = Next_W_Vel(CalculatedBase)
+        Current_W = Next_W[W_Idx]
+        W_Vel = Next_W_Vel[W_Vel_Idx]
     }
     If (X_Axis == 1)
     {
-        Current_X = Next_X(CalculatedBase)
-        X_Vel = Next_X_Vel(CalculatedBase)
+        Current_X = Next_X[X_Idx]
+        X_Vel = Next_X_Vel[X_Vel_Idx]
     }
     If (Y_Axis == 1)
     {
-        Current_Y = Next_Y(CalculatedBase)
-        Y_Vel = Next_Y_Vel(CalculatedBase)
+        Current_Y = Next_Y[Y_Idx]
+        Y_Vel = Next_Y_Vel[Y_Vel_Idx]
     }
     If (Z_Axis == 1)
     {
-        Current_Z = Next_Z(CalculatedBase)
-        Z_Vel = Next_Z_Vel(CalculatedBase)
+        Current_Z = Next_Z[Z_Idx]
+        Z_Vel = Next_Z_Vel[Z_Vel_Idx]
     }
-
-    // All Prev <- Current <- Next shifts done so now
-    // increment the 'next pointer'
-    // Calculated base is the index into all 'Next' Arrays and
-    // Current Index is incremented at each iteration
-    CalculatedBase = CurrentBufferAdr + CurrentIndex
 Return
 
 // Subroutine 3 ************************************************************************************
@@ -353,7 +382,32 @@ Return
 // *************************************************************************************************
 
 N103:
-    CalculatedBase = CurrentBufferAdr + CurrentIndex
+    // Convert absolute address to the index of integer data in the user shared memory buffer (USHM)
+    CalculatedBase = CurrentBufferAdr/ _SIZEOF_INTEGER_;
+    // Integer type buffers
+	Time_Idx = CalculatedBase + CurrentIndex
+	User_Idx = Time_Idx + BuffLen
+    // Double type buffers
+    // Convert index of integer data to double data in USHM
+    A_Idx     = (User_Idx + BuffLen) * _SIZEOF_INTEGER_ / _SIZEOF_DOUBLE_
+    B_Idx     = A_Idx     + BuffLen
+    C_Idx     = B_Idx     + BuffLen
+    U_Idx     = C_Idx     + BuffLen
+    V_Idx     = U_Idx     + BuffLen
+    W_Idx     = V_Idx     + BuffLen
+    X_Idx     = W_Idx     + BuffLen
+    Y_Idx     = X_Idx     + BuffLen
+    Z_Idx     = Y_Idx     + BuffLen
+    A_Vel_Idx = Z_Idx     + BuffLen
+    B_Vel_Idx = A_Vel_Idx + BuffLen
+    C_Vel_Idx = B_Vel_Idx + BuffLen
+    U_Vel_Idx = C_Vel_Idx + BuffLen
+    V_Vel_Idx = U_Vel_Idx + BuffLen
+    W_Vel_Idx = V_Vel_Idx + BuffLen
+    X_Vel_Idx = W_Vel_Idx + BuffLen
+    Y_Vel_Idx = X_Vel_Idx + BuffLen
+    Z_Vel_Idx = Y_Vel_Idx + BuffLen
+
 Return
 
 // Subroutines 4-8 *********************************************************************************
@@ -368,9 +422,9 @@ N104:
     {                      // Set error and abort if demanded move time is zero
         Traj_Status = Traj_StatusError      // Traj_Status = 3
         Error = 2
-        CMD"A"
-        Dwell 0
         PVT_Time = 1000
+        abort
+        Dwell 0
     }
 
 
@@ -404,8 +458,8 @@ N110:
     // If UserFunc is defined and greater than zero, call the corresponding function.
     // This function is expected to be implemented in either:
     // trajectory_scan_userfunc_equ_ppmac.pmc or trajectory_scan_userfunc_gpio_ppmac.pmc
-    if (UserFunc > 0) {
-        call UserFunc(UserFunc);
+    if (UserCmd > 0) {
+        call UserFunc(UserCmd);
     }
 
 Return
