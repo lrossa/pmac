@@ -15,6 +15,8 @@ const std::string pmacHardwareTurbo::CS_VEL_CMD = "&%dQ70=%f ";
 const std::string pmacHardwareTurbo::CS_ACCELERATION_CMD = "I%d87=%f";
 const std::string pmacHardwareTurbo::CS_AXIS_MAPPING = "&%d#%d->,";
 const std::string pmacHardwareTurbo::CS_ENABLED_COUNT = "I68";
+const std::string pmacHardwareTurbo::AXIS_MASTER_CONTROL_CMD = "I%d06";
+
 
 const int pmacHardwareTurbo::PMAC_STATUS1_MAXRAPID_SPEED = (0x1 << 0);
 const int pmacHardwareTurbo::PMAC_STATUS1_ALT_CMNDOUT_MODE = (0x1 << 1);
@@ -361,6 +363,15 @@ std::string pmacHardwareTurbo::getCSEnabledCountCmd(){
 
 std::string pmacHardwareTurbo::parseCSMappingResult(const std::string mappingResult) {
   return mappingResult;
+}
+
+std::string pmacHardwareTurbo::getMasterControlCmd(int axis) {
+  char cmd[255];
+  static const char *functionName = "getMasterControlCmd";
+
+  debugf(DEBUG_FLOW, functionName, "Axis %d", axis);
+  sprintf(cmd, AXIS_MASTER_CONTROL_CMD.c_str(), axis);
+  return std::string(cmd);
 }
 
 void pmacHardwareTurbo::startTrajectoryTimePointsCmd(char *user_cmd, char *time_cmd,

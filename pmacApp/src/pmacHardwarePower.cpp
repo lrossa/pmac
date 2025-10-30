@@ -20,6 +20,7 @@ const std::string pmacHardwarePower::CS_ACCELERATION_CMD = "Coord[%d].Ta=%f Coor
 // the trailing ; stops clashes from occurring (instead of comma on turbo)
 const std::string pmacHardwarePower::CS_AXIS_MAPPING = "#%d->;";
 const std::string pmacHardwarePower::CS_ENABLED_COUNT = "Sys.MaxCoords";
+const std::string pmacHardwarePower::AXIS_MASTER_CONTROL_CMD = "I%d06";
 
 const int pmacHardwarePower::PMAC_STATUS1_TRIGGER_MOVE = (0x1 << 31);
 const int pmacHardwarePower::PMAC_STATUS1_HOMING = (0x1 << 30);
@@ -338,6 +339,15 @@ std::string pmacHardwarePower::parseCSMappingResult(const std::string mappingRes
   }
 
   return result;
+}
+
+std::string pmacHardwarePower::getMasterControlCmd(int axis) {
+  char cmd[255];
+  static const char *functionName = "getMasterControlCmd";
+
+  debugf(DEBUG_FLOW, functionName, "Axis %d", axis);
+  sprintf(cmd, AXIS_MASTER_CONTROL_CMD.c_str(), axis);
+  return std::string(cmd);
 }
 
 void pmacHardwarePower::startTrajectoryTimePointsCmd(char *userCmd, char *timeCmd,

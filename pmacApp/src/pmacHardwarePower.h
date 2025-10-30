@@ -38,6 +38,8 @@ public:
     std::string getCSAccTimeCmd(int csNo, double time);
 
     std::string getCSMappingCmd(int csNo, int axis);
+    
+    std::string getMasterControlCmd(int axis);
 
     std::string getCSEnabledCountCmd();
 
@@ -70,6 +72,7 @@ private:
     static const std::string CS_ACCELERATION_CMD;
     static const std::string CS_AXIS_MAPPING;
     static const std::string CS_ENABLED_COUNT;
+    static const std::string AXIS_MASTER_CONTROL_CMD;
 
     static const int PMAC_STATUS1_TRIGGER_MOVE;
     static const int PMAC_STATUS1_HOMING;

@@ -284,8 +284,6 @@ void pmacAxis::setMasterControlState(int new_control_state) {
       asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
                 "Controller %s Axis %d. %s: setMasterControlState failed to return asynSuccess.\n",
                 pC_->portName, axisNo_, functionName);
-    } else {
-      this->masterControl_ = new_control_state;
     }
   }
 }
