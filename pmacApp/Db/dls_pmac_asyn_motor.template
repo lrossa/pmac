@@ -68,16 +68,16 @@ record(ao, "$(P)$(M):OFF_SET") {
 record(bo, "$(P)$(M):MASTER_CTRL") {
   field(DTYP, "asynInt32")
   field(OUT, "@asyn($(PORT),$(ADDR),0)PMAC_C_AXIS_MASTER_CTRL")
-  field(ZNAM, "0")
-  field(ONAM, "1")
+  field(ZNAM, "Following Off")
+  field(ONAM, "Following On")
 }
 
 record(bi, "$(P)$(M):MASTER_CTRL_RBV") {
   field(DTYP, "asynInt32")
   field(INP, "@asyn($(PORT),$(ADDR),0)PMAC_C_AXIS_MASTER_CTRL_RBV")
   field(SCAN, "I/O Intr")
-  field(ZNAM, "0")
-  field(ONAM, "1")
+  field(ZNAM, "Following Off")
+  field(ONAM, "Following On")
 }
 
 include "motor_in_cs.template"

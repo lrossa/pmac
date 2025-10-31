@@ -275,10 +275,9 @@ void pmacAxis::setMasterControlState(int new_control_state) {
   char response[PMAC_MAXBUF] = {0};
   static const char *functionName = "setMasterControlState";
   debug(DEBUG_TRACE, functionName, "Setting axis master position control", new_control_state);
-  // Set parameter here? or should this be set in poll
-  this->masterControl_ = new_control_state;
   if (this->connected_){
-    sprintf(command, "I%d06=%d", this->axisNo_, new_control_state);
+    std::string master_control_cmd = pC_->pHardware_->getMasterControlCmd(this->axisNo_);
+    sprintf(command, master_control_cmd.c_str(), new_control_state);
     status = pC_->axisWriteRead(command, response);
     if (status != asynSuccess) {
       asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
@@ -341,7 +340,7 @@ asynStatus pmacAxis::move(double position, int relative, double min_velocity, do
       sprintf(command, "%s%s#%d %s%.2f", vel_buff, acc_buff, axisNo_,
               (relative ? "J^" : "J="), position / scale_);
     } else if (this->masterControl_ != 0){
-      debug(DEBUG_TRACE, functionName, "Axis move ignore, as axis is in following mode", command);
+      debug(DEBUG_ERROR, functionName, "Axis move ignore, as axis is in following mode", command);
     } else { /* deferred moves */
       sprintf(command, "%s%s", vel_buff, acc_buff);
       deferredPosition_ = position / scale_;

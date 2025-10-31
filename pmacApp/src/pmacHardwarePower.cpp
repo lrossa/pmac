@@ -20,7 +20,7 @@ const std::string pmacHardwarePower::CS_ACCELERATION_CMD = "Coord[%d].Ta=%f Coor
 // the trailing ; stops clashes from occurring (instead of comma on turbo)
 const std::string pmacHardwarePower::CS_AXIS_MAPPING = "#%d->;";
 const std::string pmacHardwarePower::CS_ENABLED_COUNT = "Sys.MaxCoords";
-const std::string pmacHardwarePower::AXIS_MASTER_CONTROL_CMD = "I%d06";
+const std::string pmacHardwarePower::AXIS_MASTER_CONTROL_CMD = "Motor[%d].MasterCtrl";
 
 const int pmacHardwarePower::PMAC_STATUS1_TRIGGER_MOVE = (0x1 << 31);
 const int pmacHardwarePower::PMAC_STATUS1_HOMING = (0x1 << 30);

@@ -1509,7 +1509,7 @@ asynStatus pmacController::mediumUpdate(pmacCommandStore *sPtr) {
     }
 
     // Get master control mode
-    std::string master_control_cmd = pHardware_->getMasterControlCmd(axis).c_str();
+    std::string master_control_cmd = pHardware_->getMasterControlCmd(axis);
     if (sPtr->checkForItem(master_control_cmd)) {
       const std::string result = sPtr->readValue(master_control_cmd);
       // Set private variable for axis move gating
