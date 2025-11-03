@@ -277,7 +277,7 @@ void pmacAxis::setMasterControlState(int new_control_state) {
   debug(DEBUG_TRACE, functionName, "Setting axis master position control", new_control_state);
   if (this->connected_){
     std::string master_control_cmd = pC_->pHardware_->getMasterControlCmd(this->axisNo_);
-    sprintf(command, master_control_cmd.c_str(), new_control_state);
+    sprintf(command, "%s=%d", master_control_cmd.c_str(), new_control_state);
     status = pC_->axisWriteRead(command, response);
     if (status != asynSuccess) {
       asynPrint(pC_->pasynUserSelf, ASYN_TRACE_ERROR,
