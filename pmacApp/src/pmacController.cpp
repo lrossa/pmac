@@ -425,6 +425,8 @@ void pmacController::createAsynParams(void) {
   createParam(PMAC_C_AxisBits01String, asynParamInt32, &PMAC_C_AxisBits01_);
   createParam(PMAC_C_AxisBits02String, asynParamInt32, &PMAC_C_AxisBits02_);
   createParam(PMAC_C_AxisBits03String, asynParamInt32, &PMAC_C_AxisBits03_);
+  createParam(PMAC_C_AxisMasterCtrlString, asynParamInt32, &PMAC_C_AxisMasterCtrl_);
+  createParam(PMAC_C_AxisMasterCtrlRBVString, asynParamInt32, &PMAC_C_AxisMasterCtrlRBV_);
   createParam(PMAC_C_ProfileUseAxisAString, asynParamInt32, &PMAC_C_ProfileUseAxisA_);
   createParam(PMAC_C_ProfileUseAxisBString, asynParamInt32, &PMAC_C_ProfileUseAxisB_);
   createParam(PMAC_C_ProfileUseAxisCString, asynParamInt32, &PMAC_C_ProfileUseAxisC_);
@@ -1506,6 +1508,21 @@ asynStatus pmacController::mediumUpdate(pmacCommandStore *sPtr) {
       axisCs = this->getAxis(axis)->getAxisCSNo();
     }
 
+    // Get master control mode
+    std::string master_control_cmd = pHardware_->getMasterControlCmd(axis);
+    if (sPtr->checkForItem(master_control_cmd)) {
+      const std::string result = sPtr->readValue(master_control_cmd);
+      // Set private variable for axis move gating
+      int master_control_mode = stoi(result);
+      this->getAxis(axis)->masterControl_ = master_control_mode;
+      setIntegerParam(axis, PMAC_C_AxisMasterCtrlRBV_, master_control_mode);
+      debugf(DEBUG_VARIABLE, functionName, "Axis %d master control mode:%s",
+        axis, result.c_str());
+    } else {
+      sPtr->addItem(master_control_cmd);
+    }
+    
+    
     //Power pmac coordinate systems are from 0 - 15 so subtract 1
     int power_cs_edit = (cid_ == PMAC_CID_POWER_) ? -1 : 0;
 
@@ -2596,6 +2613,8 @@ asynStatus pmacController::writeInt32(asynUser *pasynUser, epicsInt32 value) {
     status = (this->executeManualGroup() == asynSuccess) && status;
   } else if (function == PMAC_C_GroupCSPort_) {
     status = (this->executeManualGroup() == asynSuccess) && status;
+  } else if (function == PMAC_C_AxisMasterCtrl_) {
+    pAxis->setMasterControlState(value);
   }
 
 

@@ -81,6 +81,8 @@ public:
     virtual std::string getCSAccTimeCmd(int csNo, double time) = 0;
 
     virtual std::string getCSMappingCmd(int csNo, int axis) = 0;
+    
+    virtual std::string getMasterControlCmd(int axis) = 0;
 
     virtual std::string getCSEnabledCountCmd() = 0;
 

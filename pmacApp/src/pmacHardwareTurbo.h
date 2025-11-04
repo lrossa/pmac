@@ -39,6 +39,8 @@ public:
 
     std::string getCSMappingCmd(int csNo, int axis);
 
+    std::string getMasterControlCmd(int axis);
+
     std::string getCSEnabledCountCmd();
 
     std::string parseCSMappingResult(const std::string mappingResult);
@@ -71,6 +73,8 @@ private:
     static const std::string CS_ACCELERATION_CMD;
     static const std::string CS_AXIS_MAPPING;
     static const std::string CS_ENABLED_COUNT;
+    static const std::string AXIS_MASTER_CONTROL_CMD;
+
 
     static const int PMAC_STATUS1_MAXRAPID_SPEED;
     static const int PMAC_STATUS1_ALT_CMNDOUT_MODE;
