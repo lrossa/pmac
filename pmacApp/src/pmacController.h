@@ -106,6 +106,7 @@
 #define PMAC_C_IVariablesString           "PMAC_I_VARIABLES"
 #define PMAC_C_MVariablesString           "PMAC_M_VARIABLES"
 #define PMAC_C_PVariablesString           "PMAC_P_VARIABLES"
+#define PMAC_C_IdleWaitTimeString         "PMAC_C_IDLEWAITTIME"
 
 // direct moves
 #define PMAC_C_DirectMoveString           "PMAC_C_DIRECT_MOVE"
@@ -294,13 +295,14 @@ public:
     asynStatus writeFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements);
     asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements);
     asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars, size_t *nActual);
+    asynStatus writeOption(asynUser *pasynUser, const char *key, const char *value);
 
     asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
     asynStatus readInt64Array(asynUser *pasynUser, epicsInt64 *value, size_t nElements, size_t *nIn);
     asynStatus readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn);
-
     asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements,
              size_t *nIn);
+    asynStatus readOption(asynUser *pasynUser, const char *key, char *value, int maxChars);
 
     void report(FILE *fp, int level);
     pmacAxis *getAxis(asynUser *pasynUser);
@@ -509,6 +511,7 @@ protected:
     int PMAC_I_Variables_;
     int PMAC_M_Variables_;
     int PMAC_P_Variables_;
+    int PMAC_C_IdleWaitTime_;
     int PMAC_C_LastParam_;
 #define LAST_PMAC_PARAM PMAC_C_LastParam_
     int parameters[PMAC_MAX_PARAMETERS];
