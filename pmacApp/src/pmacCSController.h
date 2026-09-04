@@ -61,6 +61,8 @@ public:
     std::string getPortName();
     asynStatus writeInt32(asynUser *pasynUser, epicsInt32 value);
     asynStatus writeFloat64(asynUser *pasynUser, epicsFloat64 value);
+    asynStatus writeOption(asynUser *pasynUser, const char *key, const char *value);
+    asynStatus readOption(asynUser *pasynUser, const char *key, char *value, int maxChars);
     void setDebugLevel(int level, int axis);
     bool getMoving();
     int getCSNumber();

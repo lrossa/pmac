@@ -64,6 +64,9 @@ pmacSetCoordMovingPollPeriod(0, 100)
 #include <drvSup.h>
 #include <registryFunction.h>
 #include <epicsExport.h>
+#include <epicsString.h>
+#include <epicsStdlib.h>
+#include <epicsMath.h>
 #include <sstream>
 #include "pmacCSController.h"
 #include "pmacController.h"
@@ -149,7 +152,7 @@ const std::string pmacCSController::CS_RUNTIME_ERRORS[] = {
 pmacCSController::pmacCSController(const char *portName, const char *controllerPortName, int csNo,
                                    int program)
         : asynMotorController(portName, 10, NUM_PMAC_CS_PARAMS,
-                              asynInt32ArrayMask, // For user mode and velocity mode
+                              asynOptionMask | asynInt32ArrayMask,
                               0, // No addition interrupt interfaces
                               ASYN_CANBLOCK | ASYN_MULTIDEVICE,
                               1, // autoconnect
@@ -349,6 +352,50 @@ asynStatus pmacCSController::writeFloat64(asynUser *pasynUser, epicsFloat64 valu
   status = (asynMotorController::writeFloat64(pasynUser, value) == asynSuccess) && status;
 
   return status ? asynSuccess : asynError;
+}
+
+/** Called for "asynSetOption" in IOC shell.
+  * \param[in] pasynUser pasynUser structure that encodes the reason and address.
+  * \param[in] key Option key string.
+  * \param[in] value Value string. */
+asynStatus pmacCSController::writeOption(asynUser *pasynUser, const char *key, const char *value)
+{
+  pmacCSAxis* pAxis(getAxis(pasynUser));
+  if (pAxis && key && value)
+  {
+    if (!epicsStrCaseCmp(key, "idle-waittime"))
+    {
+      double dIdleWaitTime(static_cast<double>(epicsNAN));
+      if (!epicsParseDouble(value, &dIdleWaitTime, NULL) && std::isfinite(dIdleWaitTime))
+      {
+        if (dIdleWaitTime < 0.) dIdleWaitTime = 0.; // no wait time
+        else if (dIdleWaitTime > 10000.) dIdleWaitTime = 10000.; // maximum wait time
+        pAxis->dIdleWaitTime_ = dIdleWaitTime / 1000.;
+        return asynSuccess;
+      }
+      return asynError;
+    }
+  }
+  return asynMotorController::writeOption(pasynUser, key, value);
+}
+
+/** Called for "asynShowOption" in IOC shell.
+  * \param[in] pasynUser pasynUser structure that encodes the reason and address.
+  * \param[in] key Option key string.
+  * \param[in] value Address of value string to be returned
+  * \param[in] maxChars Size of value string */
+asynStatus pmacCSController::readOption(asynUser *pasynUser, const char *key, char *value, int maxChars)
+{
+  pmacCSAxis* pAxis(getAxis(pasynUser));
+  if (pAxis && key && maxChars > 0)
+  {
+    if (!epicsStrCaseCmp(key, "idle-waittime"))
+    {
+      epicsSnprintf(value, maxChars, "%.15g", 1000. * pAxis->dIdleWaitTime_);
+      return asynSuccess;
+    }
+  }
+  return asynMotorController::readOption(pasynUser, key, value, maxChars);
 }
 
 

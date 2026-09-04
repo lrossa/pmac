@@ -294,13 +294,14 @@ public:
     asynStatus writeFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements);
     asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements);
     asynStatus writeOctet(asynUser *pasynUser, const char *value, size_t nChars, size_t *nActual);
+    asynStatus writeOption(asynUser *pasynUser, const char *key, const char *value);
 
     asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
     asynStatus readInt64Array(asynUser *pasynUser, epicsInt64 *value, size_t nElements, size_t *nIn);
     asynStatus readFloat64Array(asynUser *pasynUser, epicsFloat64 *value, size_t nElements, size_t *nIn);
-
     asynStatus readEnum(asynUser *pasynUser, char *strings[], int values[], int severities[], size_t nElements,
              size_t *nIn);
+    asynStatus readOption(asynUser *pasynUser, const char *key, char *value, int maxChars);
 
     void report(FILE *fp, int level);
     pmacAxis *getAxis(asynUser *pasynUser);
